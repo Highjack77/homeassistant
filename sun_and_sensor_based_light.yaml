@@ -1,0 +1,40 @@
+blueprint:
+  name: Light based on detector and sun
+  description: set entity state (on/off) based on motion/presence sensor only when sun is below horizon
+  domain: automation
+  input:
+    source_sensor:
+      name: Motion/Presence sensor
+      description: This sensor will be synchronized with the light.
+      selector:
+        entity:
+          domain: binary_sensor
+    target_light:
+      name: Light
+      description: This light to keep in sync.
+      selector:
+        target:
+          entity:
+            domain: light
+variables:
+  s_sensor: !input source_sensor
+trigger:
+  - platform: state
+    entity_id:
+      - sun.sun
+  - platform: state
+    entity_id:
+      - !input source_sensor
+action:
+- choose:
+  - conditions:
+    - condition: state
+      entity_id: sun.sun
+      state: 'above_horizon'
+    sequence:
+    - service: homeassistant.turn_off
+      target: !input target_light
+  default:
+    - service: homeassistant.turn_{{states(s_sensor)}}
+      target: !input target_light
+mode: single
