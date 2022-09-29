@@ -41,10 +41,10 @@ action:
     - condition: or
       conditions:
       - condition: state
-        entity_id: binary_sensor.kitchenpresence
+        entity_id: source_sensor
         state: "on"
       - condition: state
-        entity_id: binary_sensor.kitchenpresence
+        entity_id: source_sensor
         state: "off"
     sequence:
     - service: homeassistant.turn_{{states(s_sensor)}}
