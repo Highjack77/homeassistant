@@ -19,22 +19,37 @@ blueprint:
 variables:
   s_sensor: !input source_sensor
 trigger:
-  - platform: state
-    entity_id:
-      - sun.sun
-  - platform: state
-    entity_id:
-      - !input source_sensor
+- platform: state
+  entity_id:
+  - sun.sun
+- platform: state
+  entity_id:
+  - !input source_sensor
 action:
 - choose:
   - conditions:
     - condition: state
       entity_id: sun.sun
-      state: 'above_horizon'
+      state: above_horizon
     sequence:
     - service: homeassistant.turn_off
       target: !input target_light
-  default:
+  - conditions:
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.kitchenpresence
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.kitchenpresence
+        state: "off"
+    sequence:
     - service: homeassistant.turn_{{states(s_sensor)}}
       target: !input target_light
+#  default:
+#  - service: homeassistant.turn_{{states(s_sensor)}}
+#    target: !input target_light
 mode: single
