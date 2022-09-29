@@ -1,0 +1,40 @@
+blueprint:
+  name: Prevent light beeing lit at daylight
+  description: Turn automatically a light off when lit during the day
+  domain: automation
+  input:
+    target_lights:
+      name: Light
+      description: 'The light to keep off during the day
+        For more than one, add a comma and no spaces between the full 
+        entity names. Example: light.lamp_left,light.lamp_right
+	Warning: friendly names cannot be used'
+      selector:
+        entity:
+          domain: light
+    feature_switch:
+      name: Validation boolean
+      description: Boolean helper specifying if the the automation is on or off
+      selector:
+        entity:
+          domain: input_boolean
+trigger:
+- platform: state
+  entity_id: !input 'target_lights'
+action:
+- choose:
+  - conditions:
+    - condition: state
+      entity_id: sun.sun
+      state: above_horizon
+    - condition: state
+      entity_id: !input feature_switch
+      state: "on"
+    - condition: template
+      value_template: '{{ trigger.from_state.state == ''off'' }}'
+    sequence:
+    - service: light.turn_off
+      data:
+        entity_id: '{{ trigger.entity_id }}'
+mode: parallel
+max: 100
