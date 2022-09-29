@@ -1,0 +1,40 @@
+blueprint:
+  name: Synchronize entities states
+  description: Synchronize 2 entities states
+  domain: automation
+  input:
+    entity_1:
+      name: First entity
+      selector:
+        entity:
+    entity_2:
+      name: Second entity
+      selector:
+        entity:
+    feature_switch:
+      name: Validation boolean
+      description: Boolean helper specifying if the the automation is on or off
+      selector:
+        entity:
+          domain: input_boolean
+variables:
+  entity_1: !input entity_1
+  entity_2: !input entity_2
+trigger:
+- platform: state
+  entity_id: !input entity_1
+- platform: state
+  entity_id: !input entity_2
+condition:
+- condition: state
+  entity_id: !input feature_switch
+  state: "on"
+#- condition: template
+#  value_template: '{{ states(entity_1) != states(entity_2) }}'
+action:
+- service: homeassistant.turn_{{ trigger.to_state.state }}
+  data:
+    entity_id: '{% if trigger.from_state.entity_id == entity_1 %} {{ entity_2 }} {%
+      else %} {{ entity_1 }} {% endif %}'
+mode: restart
+max_exceeded: silent
