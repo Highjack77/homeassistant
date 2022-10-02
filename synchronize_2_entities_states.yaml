@@ -6,17 +6,19 @@ blueprint:
     entity_1:
       name: First entity
       selector:
-        entity:
+        entity: {}
     entity_2:
       name: Second entity
       selector:
-        entity:
+        entity: {}
     feature_switch:
       name: Validation boolean
       description: Boolean helper specifying if the the automation is on or off
       selector:
         entity:
           domain: input_boolean
+          multiple: false
+  source_url: https://github.com/Highjack77/homeassistant/blob/main/synchronize_2_entities_states.yaml
 variables:
   entity_1: !input entity_1
   entity_2: !input entity_2
@@ -28,9 +30,9 @@ trigger:
 condition:
 - condition: state
   entity_id: !input feature_switch
-  state: "on"
-#- condition: template
-#  value_template: '{{ states(entity_1) != states(entity_2) }}'
+  state: 'on'
+- condition: template
+  value_template: "{{ trigger.to_state.state != 'unavailable' }}"
 action:
 - service: homeassistant.turn_{{ trigger.to_state.state }}
   data:
