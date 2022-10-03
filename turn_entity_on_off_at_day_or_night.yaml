@@ -1,5 +1,5 @@
 blueprint:
-  name: Turn entity on/off at day or night
+  name: Toggle entity at sunrise/sunset
   description: Set an entity to run during day or night
   domain: automation
   input:
