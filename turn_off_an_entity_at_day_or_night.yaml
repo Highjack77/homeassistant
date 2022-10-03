@@ -1,0 +1,88 @@
+blueprint:
+  name: Turn off an entity at sunrise/sunset
+  description: Automatically turn off entity at sunrise/sunset
+  domain: automation
+  input:
+    target_entity:
+      name: Entity
+      description: The entity(ies) to turn off
+      selector:
+        target: {}
+    runtime:
+      name: Entity(ies) turns off at
+      description: Choice between running at night or during the day
+      selector:
+        select:
+          options:
+          - Day
+          - Night
+          custom_value: false
+          multiple: false
+    offset_sunrise:
+      name: Offset from surise
+      description: Offset from sunrise in minutes (negative value is before sunrise,
+        positive value is after sunrise)
+      selector:
+        number:
+          min: -120.0
+          max: 120.0
+          step: 5.0
+          unit_of_measurement: minutes
+          mode: slider
+    offset_sunset:
+      name: Offset from sunset
+      description: Offset from sunset in minutes (negative value is before sunset,
+        positive value is after sunset)
+      selector:
+        number:
+          min: -120.0
+          max: 120.0
+          step: 5.0
+          unit_of_measurement: minutes
+          mode: slider
+    feature_switch:
+      name: Validation boolean
+      description: Boolean helper specifying if the the automation is on or off
+      selector:
+        entity:
+          domain: input_boolean
+          multiple: false
+  source_url: https://github.com/Highjack77/homeassistant/blob/main/turn_entity_on_off_at_day_or_night.yaml
+variables:
+  sel_runtime: !input runtime
+trigger:
+- platform: sun
+  event: sunrise
+  offset:
+    minutes: !input offset_sunrise
+- platform: sun
+  event: sunset
+  offset:
+    minutes: !input offset_sunset
+action:
+- choose:
+  - conditions:
+    - condition: state
+      entity_id: !input feature_switch
+      state: 'on'
+    - condition: template
+      value_template: '{{ sel_runtime == "Night" }}'
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    sequence:
+    - service: homeassistant.turn_off
+      target: !input target_entity
+  - conditions:
+    - condition: state
+      entity_id: !input feature_switch
+      state: 'on'
+    - condition: template
+      value_template: '{{ sel_runtime == "Day" }}'
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    sequence:
+    - service: homeassistant.turn_off
+      target: !input target_entity
+mode: single
