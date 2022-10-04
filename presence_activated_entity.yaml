@@ -1,0 +1,27 @@
+blueprint:
+  name: Presence Activated Entity
+  description: synchronize an entity state with a presence detector
+  domain: automation
+  input:
+    source_sensor:
+      name: Motion/Presence sensor
+      description: This sensor will be synchronized with the light.
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: false
+    target_entity:
+      name: Entity
+      description: This entity to keep in sync.
+      selector:
+        target:
+variables:
+  s_sensor: !input source_sensor
+trigger:
+- platform: state
+  entity_id:
+  - !input source_sensor
+action:
+  - service: homeassistant.turn_{{states(s_sensor)}}
+    target: !input target_entity
+mode: single
