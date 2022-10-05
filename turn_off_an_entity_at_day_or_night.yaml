@@ -14,8 +14,8 @@ blueprint:
       selector:
         select:
           options:
-          - Day
-          - Night
+          - Sunrise
+          - Sunset
           custom_value: false
           multiple: false
     offset_sunrise:
@@ -47,7 +47,6 @@ blueprint:
         entity:
           domain: input_boolean
           multiple: false
-  source_url: https://github.com/Highjack77/homeassistant/blob/main/turn_entity_on_off_at_day_or_night.yaml
 variables:
   sel_runtime: !input runtime
 trigger:
@@ -66,10 +65,9 @@ action:
       entity_id: !input feature_switch
       state: 'on'
     - condition: template
-      value_template: '{{ sel_runtime == "Night" }}'
-    - condition: state
-      entity_id: sun.sun
-      state: below_horizon
+      value_template: '{{ sel_runtime == "Sunrise" }}'
+    - condition: template
+      value_template: '{{ trigger.event = "sunrise" }}'
     sequence:
     - service: homeassistant.turn_off
       target: !input target_entity
@@ -78,10 +76,9 @@ action:
       entity_id: !input feature_switch
       state: 'on'
     - condition: template
-      value_template: '{{ sel_runtime == "Day" }}'
-    - condition: state
-      entity_id: sun.sun
-      state: below_horizon
+      value_template: '{{ sel_runtime == "Sunset" }}'
+    - condition: template
+      value_template: '{{ trigger.event = "sunset" }}'
     sequence:
     - service: homeassistant.turn_off
       target: !input target_entity
