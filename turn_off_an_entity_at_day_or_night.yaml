@@ -67,7 +67,7 @@ action:
     - condition: template
       value_template: '{{ sel_runtime == "Sunrise" }}'
     - condition: template
-      value_template: '{{ trigger.event = "sunrise" }}'
+      value_template: '{{ trigger.event == "sunrise" }}'
     sequence:
     - service: homeassistant.turn_off
       target: !input target_entity
@@ -78,7 +78,7 @@ action:
     - condition: template
       value_template: '{{ sel_runtime == "Sunset" }}'
     - condition: template
-      value_template: '{{ trigger.event = "sunset" }}'
+      value_template: '{{ trigger.event == "sunset" }}'
     sequence:
     - service: homeassistant.turn_off
       target: !input target_entity
